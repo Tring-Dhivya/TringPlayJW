@@ -76,10 +76,6 @@ public class Hubpage {
         getHubTestingMenuItem().click();
     }
 
-    // =========================
-    // Navigation
-    // =========================
-
     @Step("Verify Hub page is loaded")
     public void verifyHubPageLoaded() {
         assertThat(page.locator("main#content")).isVisible();
