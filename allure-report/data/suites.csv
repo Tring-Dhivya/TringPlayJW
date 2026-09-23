@@ -1,0 +1,6 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","2","openApplication","Default Suite","2026-08-19","passed","2026-08-19","tests.Logintest","Project1","tests.Logintest","openApplication"
+"","6","setUp","Default Suite","2026-08-19","broken","2026-08-19","tests.Logintest","Project1","tests.Logintest","setUp"
+"","12130","verifySignInAndSignUpButtons","Default Suite","2026-08-20","passed","2026-08-20","tests.Homepagelogin","Project1","tests.Homepagelogin","verifySignInAndSignUpButtons"
+"","16249","verifySignInAndSignUpButtons","Default Suite","2026-08-19","failed","2026-08-19","tests.LoginPageTest","Project1","tests.LoginPageTest","verifySignInAndSignUpButtons"
+"","5501","verifyClientActiveBehaviour","Default Suite","2026-08-20","passed","2026-08-20","tests.Homepagelogin","Project1","tests.Homepagelogin","verifyClientActiveBehaviour"

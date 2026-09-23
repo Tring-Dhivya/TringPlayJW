@@ -1,0 +1,416 @@
+{
+  "common": {
+    "default_language": "en",
+    "supported_languages": [
+      "en",
+      "es"
+    ],
+    "environment_type": "staging",
+    "authentication_type": "inplayer",
+    "subscription_type": "inplayer",
+    "media_provider": "jwplayer",
+    "is_client_active": true,
+    "legal_docs": {
+      "privacy_policy": {
+        "en": "https://tringapps-roku-builds.s3.ap-south-1.amazonaws.com/config_assets/tringplay-config/tringplay_privacy_policy_en.html",
+        "es": "https://tringapps-roku-builds.s3.ap-south-1.amazonaws.com/config_assets/tringplay-config/tringplay_privacy_policy_es.html"
+      },
+      "terms_of_use": {
+        "en": "https://tringapps-roku-builds.s3.ap-south-1.amazonaws.com/config_assets/tringplay-config/tringplay_terms_of_use_en.html",
+        "es": "https://tringapps-roku-builds.s3.ap-south-1.amazonaws.com/config_assets/tringplay-config/tringplay_terms_of_use_es.html"
+      },
+      "video_consent_viewing_policy": {
+        "en": "https://support.ksl.com/hc/en-us/articles/31297606685339-Video-Consent-Viewing-Policy",
+        "es": "https://support.ksl.com/hc/en-us/articles/31297606685339-Video-Consent-Viewing-Policy"
+      },
+      "dmca_notice": {
+        "en": "https://support.ksl.com/hc/en-us/articles/1260800721610-DMCA-Notice",
+        "es": "https://support.ksl.com/hc/en-us/articles/1260800721610-DMCA-Notice"
+      },
+      "placement": {
+        "privacy_policy": [
+          "footer",
+          "settings"
+        ],
+        "terms_of_use": [
+          "footer",
+          "settings"
+        ]
+      }
+    },
+    "custom_base_api_url": "https://ddj7o2keda8fv.cloudfront.net/api/v1",
+    "app_data": {
+      "support_label": "tringplay/contact",
+      "support_email": "https://app.tringplay.media",
+      "support_email_type": "web"
+    },
+    "is_guest_mode_enabled": true
+  },
+  "jwplayer": {
+    "config_id": "ffuxvbfv"
+  },
+  "cleeng": {
+    "publisher_token": "ZaqMQZBqxHSJPQdlp0rxRYgcsaX5b23DSwOLm1D7ZcxlwKZD",
+    "country": "US",
+    "currency": "USD",
+    "locale": "en_US",
+    "max_no_of_continue_watching": "25",
+    "max_no_of_fav": "25",
+    "max_fav_message": {
+      "en": "You reached maximum number of video listings",
+      "es": "You reached maximum number of video listings"
+    },
+    "api": {
+      "delete_account": "https://abr7donca6hbmpntht5hu5bwcy0wdiqb.lambda-url.us-east-1.on.aws/"
+    },
+    "subscription": {
+      "is_renewable_enabled": true,
+      "is_subscription_change_allowed": false
+    }
+  },
+  "authentication": {
+    "is_authentication_enabled": true,
+    "idp_federated_ui": true,
+    "is_qr_authentication_enabled": false,
+    "qr_settings": {
+      "show_registration_code": true,
+      "qr_refersh_code_time": 60,
+      "show_qr_image": true,
+      "active_web_url": "https://d2f3d2ufpl6wir.cloudfront.net/activate",
+      "qr_image_url": "data:image/png;base64,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",
+      "qr_code_type": "dynamic"
+    },
+    "can_show_signin_button": true,
+    "can_show_signup_button": true,
+    "is_guest_mode_enabled": true,
+    "is_social_login_enabled": true,
+    "social_login_providers": {
+      "google": true,
+      "facebook": true,
+      "twitter": true,
+      "apple": true
+    },
+    "can_show_mobile_field": false
+  },
+  "subscription": {
+    "product_id_keys": {
+      "staging": "productIdsStaging",
+      "production": "productIds"
+    }
+  },
+  "feature_flags": {
+    "is_onboarding_screen_enabled": true,
+    "guest_streaming_enabled": true,
+    "ad_enabled": false,
+    "ad_settings": {
+      "getJWTForSsaiDrm": "https://jmndgfsre5qgaxkeu7pmem3d6e0irguf.lambda-url.us-east-1.on.aws/",
+      "ad_config_level": "global",
+      "ad_delivery_method": "casi",
+      "ad_targeting_keys": {
+        "video": "tag",
+        "user_type": "NA",
+        "platform": "NA"
+      }
+    },
+    "is_subscription_enabled": true,
+    "is_search_enabled": true,
+    "is_recommended_content_enabled": true,
+    "is_favorite_enabled": true,
+    "is_continue_watching_enabled": true,
+    "is_download_enabled": true,
+    "is_analytics_enabled": true,
+    "analytics_provider": {
+      "firebase": false,
+      "adobe": false,
+      "appsflyer": false,
+      "google": false,
+      "custom": true
+    },
+    "is_crash_analytics": true,
+    "is_epg_enabled": true,
+    "epg_disabled_message": "This feature is not available in this Device",
+    "epg_settings": {
+      "max_days": 1,
+      "max_rows": 6,
+      "epg_no_program_message": "No broadcast available",
+      "epg_empty_slot_message": "No scheduled programs",
+      "epg_time_format": "24h",
+      "epg_display_hours": [
+        "00:00",
+        "23:59"
+      ]
+    },
+    "is_motion_thumbnail_enabled": true,
+    "is_profile_enabled": true,
+    "is_share_enabled": true,
+    "settings": {
+      "is_legal_enable": true,
+      "is_privacy_policy_enabled": true,
+      "is_terms_of_use_enabled": true,
+      "is_switch_profile_enabled": false,
+      "is_settings_enable": true,
+      "is_stream_over_wifi_enabled": true,
+      "is_video_quality_enabled": true,
+      "is_contrast_theme_enabled": false,
+      "is_font_scaling_enabled": true,
+      "is_autoplay_enabled": true,
+      "autoplay_default_value": "off",
+      "export_account": true,
+      "delete_account": true
+    },
+    "is_support_email": true,
+    "is_multi_language_support": true,
+    "is_google_captcha_enabled": false
+  },
+  "ui_settings": {
+    "hero_banner": "option2",
+    "hero_carousel": "small",
+    "hero_banner_settings": {
+      "is_autoscroll_enabled": false,
+      "autoscroll_interval_sec": 8
+    },
+    "ad_banner_settings": {
+      "is_autoscroll_enabled": true,
+      "autoscroll_interval_sec": 0
+    },
+    "is_free_badge_enabled": true,
+    "ui_flags": {
+      "is_splitup_fullname": true,
+      "is_lastname_required": false
+    },
+    "custom_ui": {
+      "scoreboard": {
+        "enabled": false,
+        "position": "above_carousel"
+      },
+      "sponsor_banner": {
+        "enabled": true,
+        "position": "top",
+        "route_url": "https://www.betonline.ag/"
+      }
+    }
+  },
+  "theme_colors": {
+    "primary": "#E32652",
+    "bg_dark": "#000000",
+    "bg_light": "#FFFFFF",
+    "background": "#000000",
+    "neutral_900": "#262626",
+    "neutral_800": "#434343",
+    "neutral_700": "#555555",
+    "neutral_600": "#7B7B7B",
+    "neutral_500": "#9D9D9D",
+    "neutral_400": "#C4C4C4",
+    "neutral_300": "#D9D9D9",
+    "neutral_200": "#E9E9E9",
+    "neutral_white": "#FFFFFF",
+    "neutral_black": "#000000",
+    "alert_error": "#EF4444",
+    "alert_warning": "#FB923C",
+    "alert_success": "#22C55E",
+    "neutral_alpha_20": "#FFFFFF33",
+    "neutral_alpha_30": "#FFFFFF4D",
+    "neutral_alpha_50": "#FFFFFF80",
+    "neutral_alpha_55": "#0000008C",
+    "neutral_alpha_60": "#d11b2d",
+    "neutral_alpha_70": "#FFFFFFB2",
+    "neutral_alpha_80": "#FFFFFFCC",
+    "transparent": "#00000000",
+    "image_overlay_text": "#FFFFFF",
+    "button_text": "#FFFFFF"
+  },
+  "platforms": {
+    "web": {
+      "activate_tv": true,
+      "change_password": true,
+      "delete_account": true,
+      "is_social_login_enabled": true,
+      "is_autoplay_enabled": true,
+      "player_type": "custom",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_delivery_method": "csai"
+        }
+      }
+    },
+    "samsung": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": true,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_delivery_method": "ssai"
+        }
+      }
+    },
+    "lg": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": true,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_delivery_method": "csai"
+        }
+      }
+    },
+    "vizio": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": true,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_delivery_method": "ssai"
+        }
+      }
+    },
+    "android_mobile": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": false,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "activate_tv": true,
+      "change_password": true,
+      "show_tags": true,
+      "player_type": "default",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_config_level": "global",
+          "ad_delivery_method": "csai",
+          "ad_delivery_provider": "jwp"
+        }
+      }
+    },
+    "android_tv": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": false,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "change_password": true,
+      "player_type": "custom",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_config_level": "global",
+          "ad_delivery_method": "ssai",
+          "ad_delivery_provider": "jwp"
+        }
+      }
+    },
+    "fire_tv": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": false,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "change_password": true,
+      "player_type": "custom",
+      "feature_flags": {
+        "ad_settings": {
+          "ad_config_level": "global",
+          "ad_delivery_method": "ssai",
+          "ad_delivery_provider": "jwp"
+        }
+      },
+      "google_analytics": {
+        "measurement_id": "G-V02FX7BB8B",
+        "api_secret": "IKkHDOvfSW60_g3UdVbZ1w"
+      }
+    },
+    "ios": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": false,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "activate_tv": true,
+      "change_password": true,
+      "player_type": "default"
+    },
+    "tvos": {
+      "is_client_active": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": false,
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "change_password": true,
+      "google_analytics": {
+        "measurement_id": "G-TEHDY5CC99",
+        "api_secret": "XMtotDnXRSqzEHuKKtze0g"
+      },
+      "google_analytics_keys": {
+        "firebase_screen_class": "screen_class",
+        "firebase_screen_name": "screen_name"
+      }
+    },
+    "roku": {
+      "build_version": {
+        "version": 32,
+        "is_authentication_enabled": false,
+        "is_qr_authentication_enabled": true,
+        "can_show_signin_button": true,
+        "can_show_signup_button": true,
+        "is_onboarding_screen_enabled": true
+      },
+      "isAutoPlayEnabled": true,
+      "is_deeplink_tracking_enabled": true,
+      "is_in_app_purchase_enabled": true,
+      "isServerSideAdCountDown": false,
+      "is_client_active": true,
+      "is_authentication_enabled": true,
+      "is_qr_authentication_enabled": false,
+      "is_favorite_enabled": true,
+      "is_continue_watching_enabled": true,
+      "is_onboarding_screen_enabled": true,
+      "is_guest_mode_enabled": true,
+      "latest_version": "",
+      "force_update": true,
+      "show_buy_button": true,
+      "show_buy_button_alert": false,
+      "is_vertical_menu_enable": true,
+      "feature_flags": {
+        "ad_enabled": false,
+        "ad_settings": {
+          "ad_config_level": "global",
+          "ad_delivery_method": "",
+          "ad_delivery_provider": "jwp"
+        }
+      },
+      "disable_buy_button": false,
+      "subscription_alert_msg": "Please subscribe the item in Web",
+      "activate_tv": true,
+      "export_account": true,
+      "delete_account": true,
+      "change_password": true,
+      "google_analytics": {
+        "measurement_id": "G-NV2NYM162H",
+        "api_secret": "Vo9fph-URfqYcBLcgiw91Q"
+      },
+      "player_type": "default",
+      "epgSettings": {
+        "catchUpHours": 6,
+        "epgContentInHours": 2,
+        "loadingDataText": "",
+        "numRows": 6,
+        "channelRightPadding": 4,
+        "fillEmptyContent": true,
+        "showCatchUpPrograms": true,
+        "timeBarLabelColor": "#FFFFFF",
+        "catchUpProgramBackgroundColor": "#FFFFFF80",
+        "programTitleColor": "#FFFFFF",
+        "programTitleFocusedColor": "#FFFFFF",
+        "ad_settings": {
+          "ad_config_level": "global",
+          "ad_delivery_method": "",
+          "ad_delivery_provider": "jwp"
+        }
+      }
+    }
+  }
+}
