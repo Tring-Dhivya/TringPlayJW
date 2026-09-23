@@ -71,7 +71,6 @@ public class Hubpage {
     public void clickloginorsub() {
         loginButtonLocator().click();
     }
-
     @Step("Click Hub testing from More menu")
     public void clickHubTesting() {
         getHubTestingMenuItem().click();
