@@ -5,11 +5,16 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import io.qameta.allure.Step;
+import org.testng.Assert;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -40,15 +45,11 @@ public class LiveEventPage {
     }
 
     public Locator getNameInputField() {
-        // Option A: Try standard HTML input attributes (Update 'title' to the actual name attribute if different)
         return page.locator("input[name='title'], input[name='name'], input[placeholder*='Name' i]");
     }
-
-    public Locator getIngestFormatDropdown() {
-        // Targets the visible custom dropdown component containing the text "Ingest format"
-        return page.locator("label:has-text('Ingest format'), wui-select:has-text('Ingest format')");
+    public Locator getWatchLiveButton() {
+        return page.locator("//button[.//span[normalize-space()='Watch live']]");
     }
-
 
     // Use CSS selector so Playwright automatically pierces the Shadow DOM
     public Locator getIngestFormatSelect() {
@@ -95,16 +96,56 @@ public class LiveEventPage {
                 .filter(new Locator.FilterOptions().setHasText("Add media"))
                 .first();
     }
-    // Search Input Field
-    public Locator getSearchInputField() {
-        return page.locator("//input[@type='search' and @placeholder='Search by title, description, tags or media ID']");
+    public Locator getRTMPDropdown() {
+        return page.getByText("RTMP", new Page.GetByTextOptions().setExact(true));
+    }
+    public Locator getIngestFormatDropdown() {
+        return page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("RTMP")
+        );
     }
 
-    // Media Checkbox
-    public Locator getMediaCheckbox() {
-        return page.locator("//div[contains(@class, 'checkbox') and contains(@class, 'input')]");
+
+    @Step("Open ingest format dropdown")
+    public void openIngestFormatDropdown() {
+
+        Locator rtmpDropdown = getIngestFormatDropdown();
+
+        rtmpDropdown.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+        );
+
+        Assert.assertTrue(
+                rtmpDropdown.isVisible(),
+                "RTMP dropdown should be visible"
+        );
+
+        rtmpDropdown.click();
+
+    }
+    public Locator getSRTOption() {
+        return page.getByRole(
+                AriaRole.LISTITEM
+        ).filter(
+                new Locator.FilterOptions().setHasText(
+                        Pattern.compile("^SRT$")
+                )
+        );
     }
 
+    @Step("Select SRT as ingest format")
+    public void selectIngestFormatSRT() {
+        getSRTOption().click();
+
+
+        Assert.assertTrue(
+                getSRTOption().isVisible(),
+                "SRT option should be visible after scrolling"
+        );
+
+    }
     // Add to Top Button
     public Locator getAddToTopButton() {
         return page.locator("//button[.//span[text()='Add to top']]");
@@ -152,6 +193,72 @@ public class LiveEventPage {
         // Use isChecked() for standard HTML radio buttons
         assertThat(getLiveEventRadioButton()).isChecked();
     }
+    @Step("Verify Watch Live button is visible")
+    public void verifyWatchLiveButtonVisible() {
+
+        Locator watchLiveButton = getWatchLiveButton();
+
+        watchLiveButton.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+        );
+
+        assertTrue(
+                watchLiveButton.isVisible(),
+                "Watch Live button should be visible"
+        );
+
+        System.out.println("Watch Live button is visible.");
+    }
+
+
+    @Step("Click Watch Live")
+    public void clickWatchLive() {
+
+        // Check for the legacy modal that is blocking the click
+        Locator legacyModal = page.locator("div._legacyModal_10u1u_4");
+
+        if (legacyModal.count() > 0 && legacyModal.first().isVisible()) {
+
+            System.out.println("Legacy modal is visible. Closing it.");
+
+            Locator closeButton = legacyModal.first().locator(
+                    "button[aria-label='Close'], " +
+                            "button[aria-label='close'], " +
+                            "button:has-text('Close')"
+            );
+
+            if (closeButton.count() > 0 && closeButton.first().isVisible()) {
+                closeButton.first().click();
+            }
+
+            // Wait until the modal is no longer visible
+            legacyModal.first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.HIDDEN)
+            );
+        }
+
+        // Get Watch Live button
+        Locator watchLiveButton = getWatchLiveButton();
+
+        // Wait until it is visible
+        watchLiveButton.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+        );
+
+        // Wait until it is enabled
+        assertTrue(
+                watchLiveButton.isEnabled(),
+                "Watch Live button is not enabled"
+        );
+
+        // Click Watch Live
+        watchLiveButton.click();
+
+        System.out.println("Watch Live button clicked successfully.");
+    }
 
     @Step("Verify Name input field is visible")
     public void verifyNameInputFieldVisible() {
@@ -165,41 +272,6 @@ public class LiveEventPage {
         String randomName = "testautomationliveevent_" + UUID.randomUUID().toString().substring(0, 8);
         input.fill(randomName);
         return randomName;
-    }
-
-    @Step("Verify 'Ingest Format' dropdown container is visible")
-    public void verifyIngestFormatDropdownVisible() {
-        assertThat(getIngestFormatDropdown().first()).isVisible();
-    }
-
-    public void selectIngestFormatSRT() {
-
-        // Open the ingest format dropdown
-        Locator ingestFormatDropdown = page.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("RTMP")
-        );
-
-        assertTrue(
-                ingestFormatDropdown.isVisible(),
-                "Ingest format dropdown should be visible"
-        );
-
-        ingestFormatDropdown.click();
-
-        // Select EXACTLY "SRT", not "SRT (Pull)"
-        Locator srtOption = page.locator("span.label").filter(
-                new Locator.FilterOptions().setHasText(
-                        java.util.regex.Pattern.compile("^SRT$")
-                )
-        );
-
-        assertTrue(
-                srtOption.isVisible(),
-                "SRT option should be visible"
-        );
-
-        srtOption.click();
     }
 
     @Step("Verify 'Advanced settings' header is visible")
@@ -233,9 +305,8 @@ public class LiveEventPage {
                 contentType.isVisible(),
                 "Content Type dropdown should be visible"
         );
-
-        // Open the Content Type dropdown
         contentType.click();
+        page.waitForTimeout(10_000);
 
         // Select exactly "Live Event"
         Locator liveEventOption = page.locator(
@@ -563,75 +634,282 @@ public class LiveEventPage {
         assertThat(scheduledTime).isVisible();
         System.out.println("Schedule: " + scheduledTime.innerText());
     }
-    @Step("VerifyStreamUrl")
-    public String getAndVerifyStreamUrl() {
 
-        getstreamUrl().waitFor(
-                new Locator.WaitForOptions()
-                        .setState(WaitForSelectorState.VISIBLE)
+    @Step("Verify and copy SRT Stream URL")
+    public String getAndVerifyStreamUrlFromClipboard() {
+
+        Locator streamUrlSnippet = page.locator(
+                "wui-code-snippet[data-test='show-stream-url']"
         );
 
-        System.out.println("========== STREAM URL DEBUG ==========");
-        System.out.println("Text: " + getstreamUrl().innerText());
-        System.out.println("TextContent: " + getstreamUrl().textContent());
-        System.out.println("HTML: " + getstreamUrl().innerHTML());
-        System.out.println("======================================");
+        streamUrlSnippet.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(30000)
+        );
 
-        String url = getstreamUrl().innerText().trim();
+        System.out.println("SRT URL component found.");
+
+        // Locate the copy button inside the code snippet
+        Locator copyButton = streamUrlSnippet.locator(
+                "button.inner:has(wui-icon[name='copy'])"
+        );
+
+        copyButton.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(30000)
+        );
+
+        assertTrue(
+                copyButton.isVisible(),
+                "SRT Stream URL copy button should be visible"
+        );
+
+        System.out.println("Clicking SRT URL copy button...");
+
+        copyButton.click();
+
+        page.waitForTimeout(500);
+
+        String url = (String) page.evaluate(
+                "() => navigator.clipboard.readText()"
+        );
+
+        System.out.println("========== SRT STREAM URL ==========");
+        System.out.println("Clipboard URL: [" + url + "]");
+        System.out.println("====================================");
+
+        assertNotNull(
+                url,
+                "SRT Stream URL copied to clipboard should not be null"
+        );
+
+        url = url.trim();
 
         assertFalse(
                 url.isEmpty(),
-                "SRT Stream URL should not be empty"
+                "SRT Stream URL copied to clipboard should not be empty"
+        );
+
+        assertTrue(
+                url.startsWith("srt://"),
+                "Copied value should be an SRT URL. Actual value: " + url
         );
 
         return url;
     }
+
+    @Step("Start FFmpeg SRT stream")
     public Process startFFmpeg(String srtUrl) throws IOException {
 
+        System.out.println("=========================================");
+        System.out.println("STARTING AUTOMATIC SRT STREAM");
+        System.out.println("SRT URL: " + srtUrl);
+        System.out.println("=========================================");
+
         String ffmpegPath =
-                "C:\\Users\\Dhivya.S\\Downloads\\ffmpeg-9.0.2-essentials_build\\ffmpeg-9.0.2-essentials_build\\bin\\ffmpeg.exe";
+                "C:\\Users\\Dhivya.S\\Downloads"
+                        + "\\ffmpeg-9.0.2-essentials_build"
+                        + "\\ffmpeg-9.0.2-essentials_build"
+                        + "\\bin\\ffmpeg.exe";
 
-        String mediaFile =
-                "C:\\Users\\Dhivya.S\\Downloads\\test-video.mp4";
+        String videoPath =
+                "C:\\Users\\Dhivya.S\\Downloads"
+                        + "\\test-video.mp4";
 
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                ffmpegPath,
-                "-re",
-                "-stream_loop", "-1",
-                "-i", mediaFile,
-                "-c", "copy",
-                "-f", "mpegts",
-                srtUrl
-        );
+        int maxAttempts = 6;
 
-        processBuilder.redirectErrorStream(true);
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
 
-        Process process = processBuilder.start();
+            System.out.println("=========================================");
+            System.out.println(
+                    "FFmpeg SRT connection attempt "
+                            + attempt
+                            + "/"
+                            + maxAttempts
+            );
+            System.out.println("=========================================");
 
-        Thread ffmpegLogThread = new Thread(() -> {
-            try (BufferedReader reader =
-                         new BufferedReader(
-                                 new InputStreamReader(
-                                         process.getInputStream()))) {
+            ProcessBuilder processBuilder =
+                    new ProcessBuilder(
+                            ffmpegPath,
 
-                String line;
+                            "-re",
 
-                while ((line = reader.readLine()) != null) {
-                    System.out.println("[FFmpeg] " + line);
+                            "-stream_loop",
+                            "-1",
+
+                            "-i",
+                            videoPath,
+
+                            "-f",
+                            "mpegts",
+
+                            srtUrl
+                    );
+
+            processBuilder.redirectErrorStream(true);
+
+            Process process =
+                    processBuilder.start();
+
+            /*
+             * Store FFmpeg output so we can inspect
+             * connection failures.
+             */
+            StringBuilder ffmpegLog =
+                    new StringBuilder();
+
+            Thread ffmpegOutputThread =
+                    new Thread(() -> {
+
+                        try (BufferedReader reader =
+                                     new BufferedReader(
+                                             new InputStreamReader(
+                                                     process.getInputStream()
+                                             )
+                                     )) {
+
+                            String line;
+
+                            while ((line = reader.readLine()) != null) {
+
+                                System.out.println(
+                                        "[FFmpeg] " + line
+                                );
+
+                                synchronized (ffmpegLog) {
+                                    ffmpegLog.append(line)
+                                            .append(System.lineSeparator());
+                                }
+                            }
+
+                        } catch (IOException e) {
+
+                            System.out.println(
+                                    "FFmpeg output reader stopped: "
+                                            + e.getMessage()
+                            );
+                        }
+                    });
+
+            ffmpegOutputThread.setName(
+                    "FFmpeg-Output-" + attempt
+            );
+
+            ffmpegOutputThread.setDaemon(true);
+
+            ffmpegOutputThread.start();
+
+            /*
+             * Give FFmpeg time to establish the SRT connection.
+             */
+            try {
+
+                Thread.sleep(10_000);
+
+            } catch (InterruptedException e) {
+
+                Thread.currentThread().interrupt();
+
+                if (process.isAlive()) {
+                    process.destroyForcibly();
                 }
 
-            } catch (IOException e) {
-                System.err.println(
-                        "FFmpeg log error: " + e.getMessage()
+                throw new IOException(
+                        "Interrupted while starting FFmpeg",
+                        e
                 );
             }
-        });
 
-        ffmpegLogThread.setDaemon(true);
-        ffmpegLogThread.start();
+            /*
+             * If FFmpeg is still running after 10 seconds,
+             * consider the SRT process established.
+             */
+            if (process.isAlive()) {
 
-        return process;
+                System.out.println("=========================================");
+                System.out.println(
+                        "FFmpeg started successfully."
+                );
+                System.out.println(
+                        "SRT streaming process is running."
+                );
+                System.out.println(
+                        "Video is looping continuously."
+                );
+                System.out.println("=========================================");
+
+                return process;
+            }
+
+            /*
+             * FFmpeg exited.
+             */
+            System.out.println("=========================================");
+            System.out.println(
+                    "FFmpeg stopped on attempt "
+                            + attempt
+            );
+            System.out.println("=========================================");
+
+            synchronized (ffmpegLog) {
+
+                System.out.println(
+                        "FFmpeg output from failed attempt:"
+                );
+
+                System.out.println(
+                        ffmpegLog
+                );
+            }
+
+            /*
+             * Do not retry forever.
+             */
+            if (attempt < maxAttempts) {
+
+                System.out.println(
+                        "SRT connection may not be ready yet."
+                );
+
+                System.out.println(
+                        "Retrying in 10 seconds..."
+                );
+
+                try {
+
+                    Thread.sleep(10_000);
+
+                } catch (InterruptedException e) {
+
+                    Thread.currentThread().interrupt();
+
+                    throw new IOException(
+                            "Interrupted while retrying FFmpeg",
+                            e
+                    );
+                }
+            }
+        }
+
+        throw new RuntimeException(
+                "FFmpeg could not establish the SRT connection "
+                        + "after "
+                        + maxAttempts
+                        + " attempts.\n"
+                        + "SRT URL: "
+                        + srtUrl
+        );
     }
+
+
+
+
+
+
+
 
 
 }

@@ -5,6 +5,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.WaitForSelectorState;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import org.testng.Assert;
@@ -67,13 +68,115 @@ public class Hubpage {
     public void verifyHubTestingMenuItemVisible() {
         assertThat(getHubTestingMenuItem()).isVisible();
     }
-    @Step("click login or sub")
-    public void clickloginorsub() {
-        loginButtonLocator().click();
+    public Locator getVikingsTop10Movie() {
+        return page.locator(
+                "section[aria-label='Top 10 Movies'] a[role='button']"
+        ).filter(new Locator.FilterOptions()
+                .setHasText("Vikings (TV Series 2013–2020)"));
     }
-    @Step("Click Hub testing from More menu")
-    public void clickHubTesting() {
-        getHubTestingMenuItem().click();
+    @Step("Verify and click Vikings from Top 10 Movies")
+    public void verifyAndClickVikingsTop10Movie() {
+
+        Locator top10Movies = page.locator(
+                "section[aria-label='Top 10 Movies']"
+        );
+
+        top10Movies.scrollIntoViewIfNeeded();
+
+        Locator vikings = top10Movies
+                .locator("a[role='button']")
+                .filter(new Locator.FilterOptions()
+                        .setHasText("Vikings (TV Series 2013–2020)"));
+
+        assertTrue(
+                vikings.isVisible(),
+                "Vikings is not visible in Top 10 Movies"
+        );
+
+        vikings.click();
+    }
+    @Step("Scroll to Animation Videos")
+    public void scrollToAnimationVideos() {
+
+        Locator animationSection = page.locator(
+                "section[aria-label='Animation Videos']"
+        );
+
+        for (int i = 0; i < 10; i++) {
+
+            if (animationSection.count() > 0) {
+                animationSection.scrollIntoViewIfNeeded();
+                return;
+            }
+
+            page.mouse().wheel(0, 800);
+            page.waitForTimeout(500);
+        }
+
+        assertTrue(
+                animationSection.count() > 0,
+                "Animation Videos section was not found on the Hub page"
+        );
+    }
+    @Step("Click Log in or subscribe")
+    public void clickLoginOrSubscribe() {
+
+        Locator loginOrSubscribe = page.locator(
+                "//button[@type='button' and .//span[normalize-space()='Log in or subscribe']]"
+        );
+
+        assertTrue(
+                loginOrSubscribe.isVisible(),
+                "Log in or subscribe button is not visible"
+        );
+
+        loginOrSubscribe.click();
+    }
+    @Step("Verify Choose a plan dialog with no pricing options")
+    public void verifyChoosePlanDialog() {
+
+        Locator dialog = page.locator(
+                "//div[@role='dialog' and @aria-label='Dialog']"
+        );
+
+        assertTrue(
+                dialog.isVisible(),
+                "Choose a plan dialog is not visible"
+        );
+
+        Locator title = dialog.locator(
+                ".//h1[normalize-space()='Choose a plan']"
+        );
+
+        assertTrue(
+                title.isVisible(),
+                "Choose a plan title is not displayed"
+        );
+
+        Locator noPricingMessage = dialog.locator(
+                ".//p[normalize-space()='There are no pricing options available at the moment.']"
+        );
+
+        assertTrue(
+                noPricingMessage.isVisible(),
+                "No pricing options message is not displayed"
+        );
+    }
+    public Locator getHub() {
+        return page.getByRole(
+                AriaRole.LINK,
+                new Page.GetByRoleOptions().setName("HUB")
+        );
+    }
+    @Step("Verify and click HUB")
+    public void verifyAndClickHub() {
+
+        Locator hub = getHub();
+
+        assertTrue(hub.isVisible(), "HUB link should be visible");
+        assertTrue(hub.isEnabled(), "HUB link should be enabled");
+
+        hub.click();
     }
 
     @Step("Verify Hub page is loaded")
@@ -508,10 +611,44 @@ public class Hubpage {
         assertThat(fullMovies).isVisible();
     }
 
-    @Step("Click Tom and Jerry movie")
-    public String clickTomAndJerryMovie() {
+    public Locator getAvengersSeries() {
+        return page.locator(
+                "section[aria-label='Series'] " +
+                        "a[role='button']"
+        ).filter(
+                new Locator.FilterOptions().setHasText(
+                        "Avengers"
+                )
+        ).first();
+    }
 
-        Locator movie = getTomAndJerryMovie();
+    @Step("Click Avengers series")
+    public String clickAvengersSeries() {
+
+        Locator series = getAvengersSeries();
+
+        assertThat(series).isVisible();
+
+        String seriesTitle = series.locator("h3").innerText();
+
+        Allure.step("Selected series: " + seriesTitle);
+
+        series.click();
+
+        return seriesTitle;
+    }
+    public Locator getLucyTop10Movie() {
+        return page.locator(
+                "section[aria-label='Top 10 Movies'] " +
+                        "a[role='button']"
+        ).filter(
+                new Locator.FilterOptions().setHasText("LUCY")
+        ).first();
+    }
+    @Step("Click Lucy from Top 10 Movies and verify title")
+    public String clickLucyTop10Movie() {
+
+        Locator movie = getLucyTop10Movie();
 
         assertThat(movie).isVisible();
 
@@ -521,28 +658,14 @@ public class Hubpage {
 
         movie.click();
 
-        return movieTitle;
-    }
-
-
-    @Step("Verify movie title")
-    public void verifyMovieTitle(String expectedTitle) {
-
         Locator title = page.locator("h1").filter(
-                new Locator.FilterOptions()
-                        .setHasText("Tom & Jerry")
-        ).first();
-
-        assertThat(title).isVisible();
-
-        String actualTitle = title.innerText();
-
-        assertTrue(
-                actualTitle.contains("Tom & Jerry"),
-                "Expected Tom & Jerry title but found: " + actualTitle
+                new Locator.FilterOptions().setHasText("LUCY")
         );
 
-        Allure.step("Verified movie title: " + actualTitle);
+        assertThat(title).isVisible();
+        assertThat(title).hasText("LUCY");
+
+        return movieTitle;
     }
 
 
@@ -679,146 +802,100 @@ public class Hubpage {
 
 
 
-    @Step("Verify Zootopia search results are loaded")
+    @Step("Verify search results are loaded")
     public void verifySearchResultsLoaded() {
-
-        Locator resultsHeading = page.locator(
-                "h2[id^='search_heading_']"
-        );
-
+        Locator resultsHeading = page.locator("h2[id^='search_heading_']");
         assertThat(resultsHeading).isVisible();
-
         Locator cards = getSearchResultCards();
-
-        assertTrue(
-                cards.count() > 0,
-                "No search result cards were found for Zootopia"
-        );
-
-        Allure.step(
-                "Zootopia search results found: " + cards.count()
-        );
+        assertTrue(cards.count() > 0, "No search result cards were found for Zootopia");
     }
 
 
-// =========================================================
-// VERIFY ZOOTOPIA MEDIA METADATA
-// =========================================================
-
-    @Step("Verify metadata for each Zootopia media card")
+    @Step("Verify metadata for each media card")
     public void verifyMediaMetadata() {
 
         Locator cards = getSearchResultCards();
-
         int cardCount = cards.count();
-
-        assertTrue(
-                cardCount > 0,
-                "No Zootopia media cards found in search results"
-        );
+        assertTrue(cardCount > 0, "No Zootopia media cards found in search results");
 
         for (int i = 0; i < cardCount; i++) {
 
             Locator card = cards.nth(i);
-
-            Allure.step(
-                    "Validating Zootopia media card " + (i + 1)
-            );
-
-            // -------------------------------------------------
-            // Thumbnail
-            // -------------------------------------------------
-
-            Locator thumbnail = card.locator(
-                    "img"
-            ).first();
-
-            assertTrue(
-                    thumbnail.count() > 0,
-                    "Thumbnail not found for card " + (i + 1)
-            );
-
+            int cardNumber = i + 1;
+            Locator thumbnail = card.locator("img").first();
+            assertTrue(thumbnail.count() > 0, "Thumbnail not found for card " + cardNumber);
             assertThat(thumbnail).isVisible();
-
-            Allure.step(
-                    "Card " + (i + 1) + " thumbnail is visible"
-            );
-
-
-            // -------------------------------------------------
-            // Title
-            // -------------------------------------------------
-
             Locator title = card.locator(
-                    "h3._title_a1msq_25"
-            ).first();
-
-            assertTrue(
-                    title.count() > 0,
-                    "Title not found for card " + (i + 1)
+                    "h3._title_a1msq_25").first();
+            assertTrue(title.count() > 0,
+                    "Title not found for card " + cardNumber
             );
 
             assertThat(title).isVisible();
-
             String titleText = title.innerText().trim();
-
             assertTrue(
                     !titleText.isEmpty(),
-                    "Title is empty for card " + (i + 1)
+                    "Title is empty for card " + cardNumber
             );
 
-            Allure.step(
-                    "Card " + (i + 1) +
-                            " title: " + titleText
-            );
+            Locator tags = card.locator(
+                    "div[class*='_tags_'] div[class*='_tag_']");
 
-
-            // -------------------------------------------------
-            // Metadata / Tag
-            // -------------------------------------------------
-
-            Locator tag = card.locator(
-                    "div[class*='_tags_'] div[class*='_tag_']"
-            ).first();
+            int tagCount = tags.count();
 
             assertTrue(
-                    tag.count() > 0,
-                    "Metadata tag not found for card " + (i + 1)
-            );
+                    tagCount > 0,
+                    "No metadata tags found for card " + cardNumber + " - Title: " + titleText);
 
-            assertThat(tag).isVisible();
 
-            String tagText = tag.innerText().trim();
+            boolean validMetadataFound = false;
+
+            StringBuilder metadataValues = new StringBuilder();
+
+            for (int j = 0; j < tagCount; j++) {
+
+                Locator tag = tags.nth(j);
+
+                // Ignore hidden tags
+                if (!tag.isVisible()) {
+                    continue;
+                }
+
+                String tagText = tag.innerText().trim();
+
+                // Ignore empty tags
+                if (tagText.isEmpty()) {
+                    continue;
+                }
+
+                if (metadataValues.length() > 0) {
+                    metadataValues.append(" | ");
+                }
+
+                metadataValues.append(tagText);
+
+                boolean isSeries =
+                        tagText.equalsIgnoreCase("Series");
+
+                boolean isDuration =
+                        tagText.matches(
+                                "(?i)\\d+\\s*(min|mins|hr|hrs|hour|hours)"
+                        );
+
+                if (isSeries || isDuration) {
+
+                    validMetadataFound = true;
+
+                }
+            }
 
             assertTrue(
-                    !tagText.isEmpty(),
-                    "Metadata tag is empty for card " + (i + 1)
-            );
+                    validMetadataFound, "No valid metadata found for card " + cardNumber + " - Title: " + titleText + " - Tags: [" + metadataValues + "]");
 
-            Allure.step(
-                    "Card " + (i + 1) +
-                            " metadata: " + tagText
-            );
-
-
-            // -------------------------------------------------
-            // Validate metadata
-            // -------------------------------------------------
-
-            boolean isSeries = tagText.equalsIgnoreCase("Series");
-
-            boolean isDuration = tagText.matches(
-                    "(?i)\\d+\\s*(min|mins|hr|hrs|hour|hours)"
-            );
-
-            assertTrue(
-                    isSeries || isDuration,
-                    "Unexpected metadata '" + tagText +
-                            "' for card " + (i + 1)
-            );
         }
-    }
 
+
+    }
     public Locator getJWUsernameField() {
         return page.locator("wui-input[data-test='set-login-email'] input");
     }
@@ -871,7 +948,7 @@ public class Hubpage {
                 "a[data-test='link-to-config-detail']"
         ).filter(
                 new Locator.FilterOptions()
-                        .setHasText("Tring Staging Config")
+                        .setHasText("Tring Automation Config")
         );
     }
 
@@ -2043,6 +2120,29 @@ public class Hubpage {
 
         throw new AssertionError(
                 "Trailers section was not found after scrolling"
+        );
+    }
+    @Step("Scroll to Series section")
+    public void scrollToSeriesSection() {
+
+        Locator heading = page.locator(
+                "//h2[normalize-space()='Series']"
+        ).first();
+
+        for (int i = 0; i < 9; i++) {
+
+            if (heading.isVisible()) {
+                System.out.println("Series section found");
+                heading.scrollIntoViewIfNeeded();
+                return;
+            }
+
+            page.mouse().wheel(0, 600);
+            page.waitForTimeout(500);
+        }
+
+        throw new AssertionError(
+                "Series section was not found after scrolling"
         );
     }
     @Step("Scroll to Trailers section and find Pawfect Moment")

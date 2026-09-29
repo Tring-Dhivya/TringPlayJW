@@ -997,29 +997,157 @@ public class FirebaseRemoteConfigClient {
         updateAutomationParameterValue(template.getJson(), automationConfig);
         putRemoteConfig(template);
     }
-    public List<String> getStagingStringList(String path) throws IOException, InterruptedException {
+
+
+    public void updateStagingString(String path, String newValue)
+            throws IOException, InterruptedException {
+
+        RemoteConfigTemplate template = getRemoteConfig();
+
+        JsonObject root = template.getJson();
+
+        // Get parameters
+        if (!root.has("parameters")
+                || !root.get("parameters").isJsonObject()) {
+
+            throw new IllegalStateException(
+                    "Firebase Remote Config does not contain parameters"
+            );
+        }
+
+        JsonObject parameters =
+                root.getAsJsonObject("parameters");
+
+        // Get global_remote_config_staging
+        if (!parameters.has("global_remote_config_staging")
+                || !parameters
+                .get("global_remote_config_staging")
+                .isJsonObject()) {
+
+            throw new IllegalStateException(
+                    "global_remote_config_staging not found"
+            );
+        }
+
+        JsonObject staging =
+                parameters.getAsJsonObject(
+                        "global_remote_config_staging"
+                );
+
+        // Get defaultValue
+        JsonObject defaultValue =
+                staging.getAsJsonObject("defaultValue");
+
+        // Get the actual configuration JSON string
+        String rawValue =
+                defaultValue.get("value").getAsString();
+
+        // Convert JSON string into JsonObject
+        JsonObject config =
+                JsonParser.parseString(rawValue)
+                        .getAsJsonObject();
+
+        // Navigate through path
+        String[] keys = path.split("\\.");
+
+        JsonObject current = config;
+
+        for (int i = 0; i < keys.length - 1; i++) {
+
+            String key = keys[i];
+
+            if (!current.has(key)
+                    || !current.get(key).isJsonObject()) {
+
+                throw new IllegalArgumentException(
+                        "Firebase config path not found: " + path
+                );
+            }
+
+            current =
+                    current.getAsJsonObject(key);
+        }
+
+        // Update final key
+        String finalKey =
+                keys[keys.length - 1];
+
+        current.addProperty(
+                finalKey,
+                newValue
+        );
+
+        // Put modified JSON back into Firebase parameter
+        defaultValue.addProperty(
+                "value",
+                config.toString()
+        );
+
+        // Publish updated Remote Config
+        putRemoteConfig(template);
+
+        System.out.println(
+                "Firebase staging config updated: "
+                        + path
+                        + " = "
+                        + newValue
+        );
+    }
+
+
+    public List<String> getStagingStringList(String path)
+            throws IOException, InterruptedException {
+
         RemoteConfigTemplate template = getRemoteConfig();
         JsonObject json = template.getJson();
 
-        String[] keys = path.split("\\.");
-        JsonObject current = json;
+        // Firebase Remote Config parameters
+        JsonObject parameters = json.getAsJsonObject("parameters");
 
-        for (int i = 0; i < keys.length - 1; i++) {
-            if (current.has(keys[i])) {
-                current = current.getAsJsonObject(keys[i]);
-            } else {
+        // Your staging configuration is stored here
+        JsonObject stagingParameter =
+                parameters.getAsJsonObject("global_remote_config_Automation");
+
+        // Get defaultValue
+        JsonObject defaultValue =
+                stagingParameter.getAsJsonObject("defaultValue");
+
+        // The actual configuration is stored as a JSON string
+        String rawValue =
+                defaultValue.get("value").getAsString();
+
+        // Convert the JSON string into a JsonObject
+        JsonObject configJson =
+                JsonParser.parseString(rawValue).getAsJsonObject();
+
+        // Navigate using the requested path
+        String[] keys = path.split("\\.");
+        JsonElement current = configJson;
+
+        for (String key : keys) {
+
+            if (!current.isJsonObject()) {
                 return Collections.emptyList();
             }
+
+            JsonObject currentObject = current.getAsJsonObject();
+
+            if (!currentObject.has(key)) {
+                return Collections.emptyList();
+            }
+
+            current = currentObject.get(key);
         }
 
-        String finalKey = keys[keys.length - 1];
+        // Make sure the final value is an array
+        if (!current.isJsonArray()) {
+            return Collections.emptyList();
+        }
+
         List<String> result = new ArrayList<>();
 
-        if (current.has(finalKey) && current.get(finalKey).isJsonArray()) {
-            JsonArray array = current.getAsJsonArray(finalKey);
-            for (JsonElement elem : array) {
-                result.add(elem.getAsString());
-            }
+        for (JsonElement element : current.getAsJsonArray()) {
+            result.add(element.getAsString());
         }
 
         return result;

@@ -29,7 +29,7 @@ public class MediaPlayer extends BaseTest {
         FirebaseRemoteConfigClient firebase = new FirebaseRemoteConfigClient();
         FirebaseRemoteConfigClient.RemoteConfigTemplate originalTemplate = firebase.getRemoteConfig();
         boolean originalClientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
-        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
         boolean originalAuthentication = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
         boolean originalAutoplayEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "feature_flags.settings.is_autoplay_enabled");
         String originalAutoplayDefaultValue = firebase.getStagingString("feature_flags.settings.autoplay_default_value");
@@ -37,7 +37,7 @@ public class MediaPlayer extends BaseTest {
             FirebaseRemoteConfigClient.RemoteConfigTemplate activeTemplate = firebase.getRemoteConfig();
             boolean clientActive = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_client_active");
             assertTrue(clientActive, "Client should be active in Firebase");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(guestModeEnabled, "Guest mode should be enabled in Firebase");
             boolean authentication = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_authentication_enabled");
             assertTrue(authentication, "Authentication should be enabled in Firebase");
@@ -50,9 +50,8 @@ public class MediaPlayer extends BaseTest {
                     "autoplay_default_value should be off");
             loginPage.launchApplication();
             loginPage.verifyGuestHomeVisible();
-            MediaPlayerpage.scrollAndFindSeriesMedia();
-            MediaPlayerpage.verifySeriesMediaVisible();
-            MediaPlayerpage.clickSeriesMedia();
+            MediaPlayerpage.scrollToSeriesSection();
+            MediaPlayerpage.verifyAndClickSeries();
             loginPage.verifyStartWatchingButtonVisible();
             loginPage.clickStartWatching();
             loginPage.verifyVideoPlayerVisible();
@@ -77,17 +76,19 @@ public class MediaPlayer extends BaseTest {
         FirebaseRemoteConfigClient firebase = new FirebaseRemoteConfigClient();
         FirebaseRemoteConfigClient.RemoteConfigTemplate originalTemplate = firebase.getRemoteConfig();
         boolean originalClientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
-        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
         boolean originalAuthentication = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
         boolean originalAutoplayEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "feature_flags.settings.is_autoplay_enabled");
-        String originalAutoplayDefaultValue = firebase.getStagingString("feature_flags.settings.autoplay_default_value");
-
+        String originalAutoplayDefaultValue =
+                firebase.getStagingString(
+                        "feature_flags.settings.autoplay_default_value"
+                );
         try {
             firebase.updateAutoplayDefaultValue("on");
             FirebaseRemoteConfigClient.RemoteConfigTemplate activeTemplate = firebase.getRemoteConfig();
             boolean clientActive = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_client_active");
             assertTrue(clientActive, "Client should be active in Firebase");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(guestModeEnabled, "Guest mode should be enabled in Firebase");
             boolean authentication = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_authentication_enabled");
             assertTrue(authentication, "Authentication should be enabled in Firebase");
@@ -111,13 +112,10 @@ public class MediaPlayer extends BaseTest {
             loginPage.clickAccount();
             MediaPlayerpage.verifySettingsVisible();
             MediaPlayerpage.clickSettings();
-            MediaPlayerpage.verifyAutoplayNextVideoIsOff();
-            MediaPlayerpage.enableAutoplayNextVideo();
             MediaPlayerpage.verifyAutoplayNextVideoIsOn();
             loginPage.clickhome();
-            MediaPlayerpage.scrollAndFindSeriesMedia();
-            MediaPlayerpage.verifySeriesMediaVisible();
-            MediaPlayerpage.clickSeriesMedia();
+            MediaPlayerpage.scrollToSeriesSection();
+            MediaPlayerpage.verifyAndClickSeries();
             loginPage.verifyStartWatchingButtonVisible();
             loginPage.clickStartWatching();
             loginPage.verifyVideoPlayerVisible();
@@ -125,15 +123,25 @@ public class MediaPlayer extends BaseTest {
             MediaPlayerpage.verifyNextVideoCountdownDisplayed();
             page.waitForTimeout(5_000);
             MediaPlayerpage.verifyNextVideoStartsAutomatically();
+            page.waitForTimeout(130_000);
+
         } finally {
             try {
-                // Restore original Firebase config value
                 firebase.updateAutoplayDefaultValue(originalAutoplayDefaultValue);
+
+                System.out.println(
+                        "Restored autoplay_default_value to: "
+                                + originalAutoplayDefaultValue
+                );
+
             } catch (Throwable e) {
-                System.err.println("Failed to restore original Firebase configuration: " + e.getMessage());
-                e.printStackTrace();
+                System.err.println(
+                        "Failed to restore original Firebase configuration: "
+                                + e.getMessage()
+                );
             }
         }
+
     }
 
    // TC : 65 Verify full screen transition where applicable
@@ -156,13 +164,15 @@ public class MediaPlayer extends BaseTest {
             loginPage.launchApplication();
             loginPage.verifyGuestHomeVisible();
             loginPage.scrollToMoviesSection();
-            loginPage.findMovieInMoviesCarousel("Demon Slayer Ep - 01");
-            loginPage.clickContentByName("Demon Slayer Ep - 01");
+            loginPage.findMovieInMoviesCarousel("Demon Ep - 01");
+            loginPage.clickContentByName("Demon Ep - 01");
             loginPage.clickStartWatching();
+            page.waitForTimeout(15_000);
             loginPage.verifyVideoPlayerVisible();
+            page.waitForTimeout(15_000);
             loginPage.clickFullScreen();
-            page.waitForTimeout(10_000);
             loginPage.verifyFullScreenEnabled();
+
         } catch (Throwable e) {
             System.err.println("Test result: " + e.getMessage());
             e.printStackTrace();
@@ -183,7 +193,7 @@ public class MediaPlayer extends BaseTest {
         FirebaseRemoteConfigClient firebase = new FirebaseRemoteConfigClient();
         FirebaseRemoteConfigClient.RemoteConfigTemplate originalTemplate = firebase.getRemoteConfig();
         boolean originalClientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
-        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
         boolean originalAuthentication = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
         boolean originalAutoplayEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "feature_flags.settings.is_autoplay_enabled");
         String originalAutoplayDefaultValue = firebase.getStagingString("feature_flags.settings.autoplay_default_value");
@@ -193,7 +203,7 @@ public class MediaPlayer extends BaseTest {
             FirebaseRemoteConfigClient.RemoteConfigTemplate activeTemplate = firebase.getRemoteConfig();
             boolean clientActive = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_client_active");
             assertTrue(clientActive, "Client should be active in Firebase");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(guestModeEnabled, "Guest mode should be enabled in Firebase");
             boolean authentication = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_authentication_enabled");
             assertTrue(authentication, "Authentication should be enabled in Firebase");
@@ -217,23 +227,21 @@ public class MediaPlayer extends BaseTest {
             loginPage.clickAccount();
             mediaPlayerPage.verifySettingsVisible();
             mediaPlayerPage.clickSettings();
-            mediaPlayerPage.verifyAutoplayNextVideoIsOff();
-            mediaPlayerPage.enableAutoplayNextVideo();
             mediaPlayerPage.verifyAutoplayNextVideoIsOn();
             loginPage.clickhome();
-            mediaPlayerPage.scrollAndFindSeriesMedia();
-            mediaPlayerPage.verifySeriesMediaVisible();
-            mediaPlayerPage.clickSeriesMedia();
+            mediaPlayerPage.scrollToSeriesSection();
+            mediaPlayerPage.verifyAndClickSeries();
             loginPage.verifyStartWatchingButtonVisible();
             loginPage.clickStartWatching();
             loginPage.verifyVideoPlayerVisible();
             page.waitForTimeout(41_000);
             mediaPlayerPage.verifyNextVideoCountdownDisplayed();
+            page.waitForTimeout(130_000);
+
         } finally {
             try {
                 // Restore original Firebase config value
-                firebase.updateAutoplayDefaultValue(originalAutoplayDefaultValue);
-            } catch (Throwable e) {
+                firebase.updateAutoplayDefaultValue(originalAutoplayDefaultValue);            } catch (Throwable e) {
                 System.err.println("Failed to restore original Firebase configuration: " + e.getMessage());
                 e.printStackTrace();
             }
@@ -254,7 +262,7 @@ public class MediaPlayer extends BaseTest {
         FirebaseRemoteConfigClient firebase = new FirebaseRemoteConfigClient();
         FirebaseRemoteConfigClient.RemoteConfigTemplate originalTemplate = firebase.getRemoteConfig();
         boolean originalClientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
-        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+        boolean originalGuestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
         boolean originalAuthentication = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
         boolean originalAutoplayEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "feature_flags.settings.is_autoplay_enabled");
         String originalAutoplayDefaultValue = firebase.getStagingString("feature_flags.settings.autoplay_default_value");
@@ -264,7 +272,7 @@ public class MediaPlayer extends BaseTest {
             FirebaseRemoteConfigClient.RemoteConfigTemplate activeTemplate = firebase.getRemoteConfig();
             boolean clientActive = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_client_active");
             assertTrue(clientActive, "Client should be active in Firebase");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(guestModeEnabled, "Guest mode should be enabled in Firebase");
             boolean authentication = firebase.getAutomationBoolean(activeTemplate.getJson(), "authentication.is_authentication_enabled");
             assertTrue(authentication, "Authentication should be enabled in Firebase");
@@ -287,8 +295,6 @@ public class MediaPlayer extends BaseTest {
             loginPage.clickAccount();
             mediaPlayerPage.verifySettingsVisible();
             mediaPlayerPage.clickSettings();
-            mediaPlayerPage.verifyAutoplayNextVideoIsOff();
-            mediaPlayerPage.enableAutoplayNextVideo();
             mediaPlayerPage.verifyAutoplayNextVideoIsOn();
             loginPage.clickhome();
             mediaPlayerPage.scrollAndFindSeriesMedia();
@@ -301,11 +307,11 @@ public class MediaPlayer extends BaseTest {
             mediaPlayerPage.verifyNextVideoCountdownDisplayed();
             page.waitForTimeout(10_000);
             mediaPlayerPage.verifyNextVideoStartsAutomatically();
+            page.waitForTimeout(130_000);
         } finally {
             try {
                 // Restore original Firebase config value
-                firebase.updateAutoplayDefaultValue(originalAutoplayDefaultValue);
-            } catch (Throwable e) {
+                firebase.updateAutoplayDefaultValue(originalAutoplayDefaultValue);            } catch (Throwable e) {
                 System.err.println("Failed to restore original Firebase configuration: " + e.getMessage());
                 e.printStackTrace();
             }
@@ -331,9 +337,11 @@ public class MediaPlayer extends BaseTest {
                assertTrue(clientActive, "Client should be active in Firebase");   loginPage.launchApplication();
                loginPage.verifyGuestHomeVisible();
                loginPage.scrollToMoviesSection();
-               loginPage.findMovieInMoviesCarousel("Demon Slayer Ep - 01");
-               loginPage.clickContentByName("Demon Slayer Ep - 01");
+               loginPage.findMovieInMoviesCarousel("Demon Ep - 01");
+               loginPage.clickContentByName("Demon Ep - 01");
+               page.waitForTimeout(20_000);
                loginPage.clickStartWatching();
+               page.waitForTimeout(13_000);
                loginPage.verifyVideoPlayerVisible();
                mediaPlayerPage.openClosedCaptions();
                mediaPlayerPage.verifyEnglishSubtitleAvailable();
@@ -349,7 +357,7 @@ public class MediaPlayer extends BaseTest {
 
        // Tc : 69 Verify video quality selection functionality
        // PLAY-008
-       @Test
+       @Test()
        @Epic("Media Player")
        @Feature("Video Quality")
        @Story("Verify video quality selection functionality")
@@ -370,10 +378,11 @@ public class MediaPlayer extends BaseTest {
                loginPage.launchApplication();
                loginPage.verifyGuestHomeVisible();
                loginPage.scrollToMoviesSection();
-               loginPage.findMovieInMoviesCarousel("Demon Slayer Ep - 01");
-               loginPage.clickContentByName("Demon Slayer Ep - 01");
+               loginPage.findMovieInMoviesCarousel("Demon Ep - 01");
+               loginPage.clickContentByName("Demon Ep - 01");
+               page.waitForTimeout(20_000);
                loginPage.clickStartWatching();
-               // Verify video player
+               page.waitForTimeout(20_000);
                loginPage.verifyVideoPlayerVisible();
                mediaPlayerPage.openQualityMenu();
                mediaPlayerPage.verifyQualityOptionsDisplayed();

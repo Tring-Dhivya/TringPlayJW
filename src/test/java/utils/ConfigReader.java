@@ -40,6 +40,9 @@ public class ConfigReader {
     public static String getPassword() {
         return properties.getProperty("password");
     }
+    public static String getUniqueEmail() {
+        return "testautomation" + System.currentTimeMillis() + "@example.com";
+    }
     public static String getJWUsername() {
         return properties.getProperty("jwusername");
     }

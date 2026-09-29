@@ -37,3 +37,15 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+target/
+allure-results/
+allure-report/
+screenshots/
+videos/
+test-results/
+*.png
+*.jpg
+*.jpeg
+*.webm
+*.mp4

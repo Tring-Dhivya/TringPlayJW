@@ -60,6 +60,44 @@ public class MediaPlayerpage {
     public void verifySeriesMediaVisible() {
         assertThat(getSeriesMediaCard()).isVisible();
     }
+    @Step("Scroll to Series section")
+    public void scrollToSeriesSection() {
+
+        Locator heading = page.locator(
+                "//h2[normalize-space()='Space']"
+        ).first();
+
+        for (int i = 0; i < 9; i++) {
+
+            if (heading.isVisible()) {
+                System.out.println("Series section found");
+                heading.scrollIntoViewIfNeeded();
+                return;
+            }
+
+            page.mouse().wheel(0, 600);
+            page.waitForTimeout(500);
+        }
+
+        throw new AssertionError(
+                "Series section was not found after scrolling"
+        );
+    }
+    @Step("Verify and click Toolpati from Series")
+    public void verifyAndClickSeries() {
+
+        Locator toolpati = page.locator(
+                "section[aria-label='Space'] a[role='button']"
+        ).filter(
+                new Locator.FilterOptions()
+                        .setHasText("Toolpati")
+        ).first();
+
+        assertThat(toolpati).isVisible();
+        assertThat(toolpati.locator("h3")).hasText("Toolpati");
+
+        toolpati.click();
+    }
     @Step("Click Toolpati series media")
     public void clickSeriesMedia() {
         getSeriesMediaCard().click();

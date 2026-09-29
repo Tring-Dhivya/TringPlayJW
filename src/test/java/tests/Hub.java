@@ -36,16 +36,13 @@ public class Hub extends BaseTest {
             try {
                 boolean clientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
                 boolean authenticationEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
-                boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+                boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
                 assertTrue(clientActive, "is_client_active should be true");
                 assertTrue(authenticationEnabled, "is_authentication_enabled should be true");
                 assertTrue(guestModeEnabled, "is_guest_mode_enabled should be true");
                 loginPage.launchApplication();
                 loginPage.verifyGuestHomeVisible();
-                hubPage.verifyMoreButtonVisible();
-                hubPage.clickMoreButton();
-                hubPage.verifyHubTestingMenuItemVisible();
-                hubPage.clickHubTesting();
+                hubPage.verifyAndClickHub();
                 hubPage.verifyHubPageLoaded();
                 hubPage.verifyAllPlaylistsVisible();
                 hubPage.verifyPlaylistTitlesAndThumbnails();
@@ -77,15 +74,12 @@ public class Hub extends BaseTest {
         try {
             boolean clientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
             boolean authenticationEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(clientActive, "is_client_active should be true");
             assertTrue(authenticationEnabled, "is_authentication_enabled should be true");
             assertTrue(guestModeEnabled, "is_guest_mode_enabled should be true"); loginPage.launchApplication();
             loginPage.verifyGuestHomeVisible();
-            hubPage.verifyMoreButtonVisible();
-            hubPage.clickMoreButton();
-            hubPage.verifyHubTestingMenuItemVisible();
-            hubPage.clickHubTesting();
+            hubPage.verifyAndClickHub();
             String firstContent = hubPage.clickPlaylistContent(0);
             hubPage.verifyMediaPageLoaded();
             page.waitForTimeout(10_000);
@@ -123,24 +117,20 @@ public class Hub extends BaseTest {
         try {
             boolean clientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
             boolean authenticationEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(clientActive, "is_client_active should be true");
             assertTrue(authenticationEnabled, "is_authentication_enabled should be true");
             assertTrue(guestModeEnabled, "is_guest_mode_enabled should be true"); loginPage.launchApplication();
             loginPage.launchApplication();
-            page.waitForTimeout(10_000);
             loginPage.verifyGuestHomeVisible();
-            hubPage.verifyMoreButtonVisible();
-            hubPage.clickMoreButton();
-            hubPage.verifyHubTestingMenuItemVisible();
-            hubPage.clickHubTesting();
-            hubPage.verifyFullMoviesPlaylistVisible();
-            String movieTitle = hubPage.clickTomAndJerryMovie();
-            hubPage.verifyMovieTitle(movieTitle);
+            hubPage.verifyAndClickHub();
+//            hubPage.verifyFullMoviesPlaylistVisible();
+            hubPage.clickLucyTop10Movie();
             loginPage.verifyStartWatchingButtonVisible();
             loginPage.clickStartWatching();
             loginPage.verifyVideoPlayerVisible();
             hubPage.verifyVideoElementExists();
+            page.waitForTimeout(20_000);
             hubPage.verifyVideoIsNotPaused();
             double initialPlaybackTime = hubPage.getCurrentPlaybackTime();
             page.waitForTimeout(30_000);
@@ -174,23 +164,20 @@ public class Hub extends BaseTest {
         try {
             boolean clientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
             boolean authenticationEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
-            boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+            boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
             assertTrue(clientActive, "is_client_active should be true");
             assertTrue(authenticationEnabled, "is_authentication_enabled should be true");
             assertTrue(guestModeEnabled, "is_guest_mode_enabled should be true");
             String authenticationType = firebase.getStagingString("common.authentication_type");
             assertEquals(authenticationType, "inplayer", "Authentication type was not updated correctly");
             loginPage.launchApplication();
-            page.waitForTimeout(20_000);
             loginPage.verifyGuestHomeVisible();
-            hubPage.verifyMoreButtonVisible();
-            hubPage.clickMoreButton();
-            hubPage.verifyHubTestingMenuItemVisible();
-            hubPage.clickHubTesting();
+            hubPage.verifyAndClickHub();
             hubPage.verifyHubPageLoaded();
             hubPage.verifyAllPlaylistsVisible();
-            hubPage.clickloginorsub();
-            loginPage.verifySignInButtonVisible();
+            hubPage.verifyAndClickVikingsTop10Movie();
+            hubPage.clickLoginOrSubscribe();
+            loginPage.verifySignInPopupVisible();
 
         } catch (Throwable e) {
             System.err.println("Test result: " + e.getMessage());
@@ -219,7 +206,6 @@ public class Hub extends BaseTest {
                 assertTrue(clientActive, "is_client_active should be true");
                 assertTrue(ISSearch, "feature_flags.is_search_enabled");
                 loginPage.launchApplication();
-                page.waitForTimeout(10_000);
                 loginPage.verifyGuestHomeVisible();
                 hubPage.clickSearch();
                 hubPage.searchFormedia();
@@ -251,7 +237,7 @@ public class Hub extends BaseTest {
             try {
                 boolean clientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
                 boolean authenticationEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_authentication_enabled");
-                boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_guest_mode_enabled");
+                boolean guestModeEnabled = firebase.getAutomationBoolean(originalTemplate.getJson(), "authentication.is_guest_mode_enabled");
                 assertTrue(clientActive, "is_client_active should be true");
                 assertTrue(authenticationEnabled, "is_authentication_enabled should be true");
                 assertTrue(guestModeEnabled, "is_guest_mode_enabled should be true"); loginPage.launchApplication();

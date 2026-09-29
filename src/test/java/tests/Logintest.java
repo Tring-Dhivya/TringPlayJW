@@ -5,6 +5,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
 import io.qameta.allure.*;
 import org.testng.annotations.Test;
+import pages.Hubpage;
 import pages.Loginpage;
 import utils.ClientExpectationReader;
 import utils.ConfigReader;
@@ -29,6 +30,7 @@ public class Logintest extends BaseTest {
     @Description("Verify that playing the same video multiple times does not create duplicate Continue Watching entries")
     public void verifyNoDuplicateContinueWatchingEntries() throws Exception {
         Loginpage loginPage = new Loginpage(page);
+        Hubpage hubPage = new Hubpage(page);
         FirebaseRemoteConfigClient firebase = new FirebaseRemoteConfigClient();
         FirebaseRemoteConfigClient.RemoteConfigTemplate originalTemplate = firebase.getRemoteConfig();
         boolean originalClientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
@@ -47,23 +49,31 @@ public class Logintest extends BaseTest {
             loginPage.enterPassword(ConfigReader.getPassword());
             loginPage.clickSubmit();
             loginPage.verifySignInButtonHidden();
-            loginPage.scrollToPawfectMoment();
-            loginPage.clickPawfectMoment();
+            hubPage.scrollToTrailersSection();
+            loginPage.verifyAndClickRingsOfPower();
+//            loginPage.clickPawfectMoment();
+            loginPage.waitForStartWatching();
             loginPage.clickStartWatching();
-            page.waitForTimeout(5_000);
+            page.waitForTimeout(20_000);
             loginPage.verifyVideoPlayerVisible();
             loginPage.verifyVideoPlayerBackButtonVisible();
             loginPage.clickVideoPlayerBackButton();
             loginPage.clickContinuewatching();
             loginPage.verifyVideoPlayerBackButtonVisible();
             loginPage.clickVideoPlayerBackButton();
-            page.waitForTimeout(5_000);
+            page.waitForTimeout(30_000);
             loginPage.clickContinuewatching();
             loginPage.verifyVideoPlayerBackButtonVisible();
             loginPage.clickVideoPlayerBackButton();
             loginPage.returnToHomePage();
             loginPage.scrollToContinueWatching();
-            loginPage.verifyPawfectMomentAppears();
+            page.waitForTimeout(10_000);
+            loginPage.verifyRingsOfPowerAppears();
+            loginPage.Clickmedia();
+//            loginPage.clickContinuewatching();
+            page.waitForTimeout(120_000);
+            loginPage.returnToHomePage();
+            loginPage.verifyGuestHomeVisible();
         } catch (Throwable e) {
             System.err.println("Test result: " + e.getMessage());
             e.printStackTrace();
@@ -81,6 +91,7 @@ public class Logintest extends BaseTest {
     public void verifyFullyWatchedVideoRemovedFromContinueWatching() throws IOException, InterruptedException {
 
         Loginpage loginPage = new Loginpage(page);
+        Hubpage hubPage = new Hubpage(page);
         FirebaseRemoteConfigClient firebase = new FirebaseRemoteConfigClient();
         FirebaseRemoteConfigClient.RemoteConfigTemplate originalTemplate = firebase.getRemoteConfig();
         boolean originalClientActive = firebase.getAutomationBoolean(originalTemplate.getJson(), "common.is_client_active");
@@ -99,15 +110,17 @@ public class Logintest extends BaseTest {
             loginPage.enterPassword(ConfigReader.getPassword());
             loginPage.clickSubmit();
             loginPage.verifySignInButtonHidden();
-            loginPage.scrollToPawfectMoment();
-            loginPage.clickPawfectMoment();
+            hubPage.scrollToTrailersSection();
+            loginPage.verifyAndClickRingsOfPower();
+            loginPage.waitForStartWatching();
             loginPage.clickStartWatching();
             loginPage.verifyVideoPlayerVisible();
-            page.waitForTimeout(26_000);
+            page.waitForTimeout(130_000);
+//            loginPage.clickVideoPlayerBackButton();
             loginPage.returnToHomePage();
             loginPage.scrollToContinueWatching();
-            page.waitForTimeout(20_000);
-            loginPage.verifyPawfectMomentRemoved();
+            page.waitForTimeout(10_000);
+            loginPage.verifyRingsOfPowerNotInContinueWatching();
         } catch (Throwable e) {
             System.err.println("Test result: " + e.getMessage());
             e.printStackTrace();
@@ -145,8 +158,9 @@ public class Logintest extends BaseTest {
             loginPage.scrollToPawfectMoment();
             loginPage.clickPawfectMoment();
             loginPage.clickStartWatching();
+            page.waitForTimeout(12_000);
             loginPage.verifyVideoPlayerVisible();
-            page.waitForTimeout(15_000);
+            page.waitForTimeout(5_000);
             double savedTimestamp = loginPage.getCurrentVideoTimestamp();
             loginPage.pauseVideo();
             loginPage.clickVideoPlayerBackButton();
@@ -297,6 +311,7 @@ public class Logintest extends BaseTest {
             firebase.updateSearchEnabled(false);
             page.reload();
             page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+            page.waitForTimeout(30_000);
             loginPage.verifyGuestHomeVisible();
             page.waitForTimeout(10_000);
             loginPage.verifySearchButtonHidden();
